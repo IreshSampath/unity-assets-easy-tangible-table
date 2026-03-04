@@ -1,0 +1,17 @@
+{
+    "name": "GAG.EasyTangibleTable.EasyUIConsole",
+    "rootNamespace": "GAG.EasyTangibleTable.EasyUIConsole",
+    "references": [
+        "GUID:b9700405087dbc544ae4956cbc66de61",
+        "GUID:5b78b67a2644a1d4d9282148bf17b6c7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
