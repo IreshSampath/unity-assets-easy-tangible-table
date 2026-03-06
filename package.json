@@ -1,6 +1,6 @@
 {
   "name": "com.ireshsampath.unity-assets.easy-tangible-table",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "EasyTangibleTable",
   "description": "EasyTangibleTable is a lightweight Unity asset for building interactive tangible table applications using TUIO. Easily detect, track, and manage fiducial markers (tags) to create interactive surfaces, installations, and multi-object experiences.\n\nNote: Requires a TUIO source (such as reacTIVision, Displax, or other tracking systems) to send tag data over OSC.",
   "unity": "2022.3",

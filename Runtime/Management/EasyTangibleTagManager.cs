@@ -39,8 +39,6 @@ namespace GAG.EasyTangibleTable
     }
     void OnTagPlaced(EasyTangibleTagModel tag)
     {
-        
-        //print($"Tag Placed: ID={tag.FiducialID}, Pos=({tag.XPos}, {tag.YPos}), Deg={tag.Degree}");
         if (_activeTags.TryGetValue(tag.FiducialID, out var controller))
         {
             controller.UpdateTag(tag);
@@ -55,6 +53,7 @@ namespace GAG.EasyTangibleTable
         }
 
         print($"Creating/Updating tag ID: {tag.FiducialID}");
+
         // 👇 Prefer pre-created tag object if assigned
         if (binding.existingTag != null)
         {

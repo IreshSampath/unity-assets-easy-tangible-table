@@ -25,7 +25,7 @@ namespace GAG.EasyTangibleTable
             _receiver.Bind("/tuio/2Dblob", (message) =>
             {
                 // Handle TUIO blob messages if needed
-                //print(message.Values.)
+                //print(message.Values.);
             });   
         }
 
@@ -45,7 +45,7 @@ namespace GAG.EasyTangibleTable
                     float xVel = message.Values[4].FloatValue;
                     float yVel = message.Values[5].FloatValue;
 
-                    //EasyUIConsoleManager.Instance.EasyLog($"Touch Detected: SessionID={sessionID}, Pos=({xPos:F2}, {yPos:F2})");
+                    EasyTangibleTableLogger.Log($"Touch Detected: SessionID={sessionID}, Pos=({xPos:F2}, {yPos:F2})");
                 }
             }
             else if (commandType == "alive")
@@ -88,9 +88,8 @@ namespace GAG.EasyTangibleTable
                 easyTangibleTag.RotationAccel = message.Values[10].FloatValue;
 
                 _activeTags.Add(easyTangibleTag.SessionID);
-                
-                //EasyUIConsoleManager.Instance.EasyLog($"Tag Detected: SessionID: {easyTangibleTag.SessionID}, FiducialID: {easyTangibleTag.FiducialID}, Pos = ({easyTangibleTag.XPos.ToString("F2")}, {easyTangibleTag.YPos.ToString("F2")}, Angle: {easyTangibleTag.Degree.ToString("F2")})");
-                //print(" Tag Position: (" + easyTangibleTag.XPos.ToString("F2") + ", " + easyTangibleTag.YPos.ToString("F2") + ") Angle: " + easyTangibleTag.Degree.ToString("F2"));
+
+                EasyTangibleTableLogger.Highlight($"Tag Detected: SessionID: {easyTangibleTag.SessionID}, FiducialID: {easyTangibleTag.FiducialID}, Pos = ({easyTangibleTag.XPos.ToString("F2")}, {easyTangibleTag.YPos.ToString("F2")}, Angle: {easyTangibleTag.Degree.ToString("F2")})");
                 EasyTangibleTagEvents.RaiseTagPlaced(easyTangibleTag);
             }
 
@@ -107,15 +106,12 @@ namespace GAG.EasyTangibleTable
                 EasyTangibleTagEvents.RaiseTagAlived(activeSessionIDs);
 
                 DetectRemovedTags(activeSessionIDs);
-                //string ids = string.Join(", ", activeSessionIDs);
-                //EasyUIConsoleManager.Instance.EasyLog("Alive sessions: " + ids);
             }
             else if (commandType == "fseq")
             {
                 if (message.Values.Count > 1)
                 {
                     int frameNumber = message.Values[1].IntValue;
-                    //EasyUIConsoleManager.Instance.EasyHiglight("End of frame #" + frameNumber);
                 }
             }
         }
@@ -128,6 +124,7 @@ namespace GAG.EasyTangibleTable
                 if (!currentSet.Contains(previousID))
                 {
                     EasyTangibleTagEvents.RaiseTagRemoved(previousID);
+                    EasyTangibleTableLogger.Warning($"Tag Removed: SessionID: {previousID}");
                 }
             }
 

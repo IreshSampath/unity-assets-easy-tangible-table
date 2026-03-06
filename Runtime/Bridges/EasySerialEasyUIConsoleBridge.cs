@@ -1,4 +1,6 @@
-#if EASY_UICONSOLE
+#if EASY_UICONSOLE //If you get an error here,
+                   //please check the EasyUIConsole package is installed.
+                   // If you don't need EasyUIConsole, the EASY_UICONSOLE tag in Scripting Define Symbols can be removed.
 using GAG.EasyUIConsole;
 using UnityEngine;
 

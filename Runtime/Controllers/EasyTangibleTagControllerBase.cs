@@ -12,13 +12,13 @@ namespace GAG.EasyTangibleTable
         [SerializeField] protected RectTransform _canvas;
 
         [Header("Settings")]
-        [SerializeField] protected bool _isMoveable = true;   // 👈 control this per tag prefab
         [SerializeField] protected bool _isActiveThisTag = true;
+        [SerializeField] protected bool _isMoveable = true;   // 👈 control this per tag prefab
         [SerializeField] protected bool _isRotatable = true; // 👈 control this per tag prefab
         [SerializeField] protected bool _isTargetRequired = false;
         //[SerializeField] protected bool _isTargetReachRequired = false;
         [SerializeField] protected GameObject _tagTargetMark;
-        [SerializeField, Range(0f, 50f)] float _alignmentThreshold = 10f;
+        [SerializeField, Range(0f, 50f)] float _targetAlignmentThreshold = 10f;
         //[SerializeField] RectTransform _fixedTarget;
         [Header("Offsets & Scale")]
         protected float _xOffset = 0f;
@@ -124,7 +124,7 @@ namespace GAG.EasyTangibleTable
             // 👇 Compare using threshold (instead of exact equality)
             //bool isAligned = distance <= _alignmentThreshold;
 
-            if(distance <= _alignmentThreshold)
+            if(distance <= _targetAlignmentThreshold)
             {
                 _tagTargetMark.gameObject.SetActive(false);
                 //_uiTransform.gameObject.SetActive(true);

@@ -18,7 +18,7 @@ namespace GAG.EasyTangibleTable
         public static void Print(string msg, EasyTangibleTableLogType type = EasyTangibleTableLogType.Log)
         {
 #if UNITY_EDITOR
-            Debug.Log(msg);
+           // Debug.Log(msg);
 #endif
             LogMsg?.Invoke(msg, type);
         }
