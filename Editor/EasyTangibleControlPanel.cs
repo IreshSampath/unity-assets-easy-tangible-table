@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Linq;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.PackageManager;
@@ -11,38 +12,194 @@ namespace GAG.EasyTangibleTable.Editor
 {
     public class EasyTangibleTableControlPanel : EditorWindow
     {
+        // ----------------------------------------------------
+        // PACKAGE
+        // ----------------------------------------------------
+
+        const string PACKAGE_NAME = "com.ireshsampath.unity-assets.easy-tangible-table";
+
+        // ----------------------------------------------------
+        // EASY UI CONSOLE
+        // ----------------------------------------------------
+
         const string EASY_UICONSOLE_PACKAGE = "com.ireshsampath.unity-assets.easy-ui-console";
         const string EASY_UICONSOLE_REPO = "https://github.com/IreshSampath/unity-assets-easy-ui-console.git";
         const string EASY_UICONSOLE_DEFINE = "EASY_UICONSOLE";
 
         AddRequest _installRequest;
-        bool _sampleImported;
-        string[] _consolePrefabs;
-        int _selectedPrefabIndex;
-        
-        void OnEnable()
-        {
-            LoadConsolePrefabs();
-        }
-        
+
+        // ----------------------------------------------------
+        // PREFABS
+        // ----------------------------------------------------
+
+        List<string> _prefabPaths = new();
+        string[] _prefabOptions = new string[0];
+        int _selectedPrefab;
+
+        // ----------------------------------------------------
+        // MENU
+        // ----------------------------------------------------
+
         [MenuItem("Tools/GAG/EasyTangibleTable")]
         public static void Open()
         {
             GetWindow<EasyTangibleTableControlPanel>("EasyTangibleTable");
         }
 
+        // ----------------------------------------------------
+        // GUI
+        // ----------------------------------------------------
+
         void OnGUI()
         {
             EditorGUILayout.Space();
+
             EditorGUILayout.LabelField("Control Panel", EditorStyles.boldLabel);
 
             EditorGUILayout.Space();
+
+            DrawEasyTangibleTableSetup();
+
+            EditorGUILayout.Space(10);
+
             DrawEasyUIConsoleIntegration();
         }
 
-        // ------------------------------------------------------
+        // ----------------------------------------------------
+        // EASY TANGIBLE TABLE SETUP
+        // ----------------------------------------------------
+
+        void RefreshPrefabList()
+        {
+            _prefabPaths.Clear();
+
+            string[] guids = AssetDatabase.FindAssets("t:Prefab EasyTangibleTable");
+
+            foreach (var guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (path.Contains("Samples"))
+                {
+                    _prefabPaths.Add(path);
+                }
+            }
+
+            _prefabOptions = _prefabPaths
+                .Select(p => System.IO.Path.GetFileNameWithoutExtension(p))
+                .ToArray();
+
+        }
+
+        void DrawPrefabSelector()
+        {
+            if (_prefabOptions.Length == 0)
+                RefreshPrefabList();
+
+            if (_prefabOptions.Length == 0)
+            {
+                EditorGUILayout.HelpBox(
+                    "No prefabs found. Import EasyTangibleTable samples first.",
+                    MessageType.Warning);
+                return;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+
+            EditorGUILayout.LabelField("Prefab", GUILayout.Width(70));
+
+            _selectedPrefab = EditorGUILayout.Popup(
+                _selectedPrefab,
+                _prefabOptions
+            );
+
+            EditorGUILayout.EndHorizontal();
+
+            if (GUILayout.Button("Add Prefab", GUILayout.Height(30)))
+            {
+                AddSelectedPrefab();
+            }
+        }
+        
+        void DrawEasyTangibleTableSetup()
+        {
+            EditorGUILayout.LabelField("EasyTangibleTable Setup", EditorStyles.boldLabel);
+
+            EditorGUILayout.Space(4);
+
+            if (GUILayout.Button("Import Sample", GUILayout.Height(30)))
+            {
+                ImportEasyTangibleTableSample();
+            }
+
+            EditorGUILayout.Space(8);
+
+            EditorGUILayout.BeginHorizontal();
+
+            EditorGUILayout.LabelField("Prefab", GUILayout.Width(70));
+
+            _selectedPrefab = EditorGUILayout.Popup(
+                _selectedPrefab,
+                _prefabOptions
+            );
+
+            EditorGUILayout.EndHorizontal();
+
+            if (GUILayout.Button("Add Prefab", GUILayout.Height(30)))
+            {
+                AddSelectedPrefab();
+            }
+        }
+
+        void AddSelectedPrefab()
+        {
+            if (_prefabPaths.Count == 0)
+                return;
+
+            string prefabPath = _prefabPaths[_selectedPrefab];
+
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+
+            if (prefab == null)
+            {
+                Debug.LogWarning("Prefab not found.");
+                return;
+            }
+
+            PrefabUtility.InstantiatePrefab(prefab);
+
+            Debug.Log($"[EasyTangibleTable] Added prefab: {prefab.name}");
+        }
+        
+        void ImportEasyTangibleTableSample()
+        {
+            var pkg = UnityEditor.PackageManager.PackageInfo
+                .GetAllRegisteredPackages()
+                .FirstOrDefault(p => p.name == PACKAGE_NAME);
+
+            if (pkg == null)
+            {
+                Debug.LogWarning("[EasyTangibleTable] Package not installed.");
+                return;
+            }
+
+            var samples = Sample.FindByPackage(pkg.name, pkg.version)?.ToList();
+
+            if (samples == null || samples.Count == 0)
+            {
+                Debug.LogWarning("[EasyTangibleTable] No samples found.");
+                return;
+            }
+
+            samples[0].Import(Sample.ImportOptions.OverridePreviousImports);
+
+            Debug.Log("[EasyTangibleTable] Sample imported.");
+        }
+        
+
+        // ----------------------------------------------------
         // EASY UI CONSOLE INTEGRATION
-        // ------------------------------------------------------
+        // ----------------------------------------------------
 
         void DrawEasyUIConsoleIntegration()
         {
@@ -51,33 +208,13 @@ namespace GAG.EasyTangibleTable.Editor
             bool installed = IsEasyUIConsoleInstalled();
             bool defineEnabled = HasDefine(EASY_UICONSOLE_DEFINE);
 
-            // EditorGUILayout.HelpBox(
-            //     $"Installed: {(installed ? "YES" : "NO")}\nDefine ({EASY_UICONSOLE_DEFINE}): {(defineEnabled ? "ENABLED" : "DISABLED")}",
-            //     installed ? MessageType.Info : MessageType.Warning);
+            EditorGUILayout.HelpBox(
+                $"Installed: {(installed ? "YES" : "NO")}\nDefine ({EASY_UICONSOLE_DEFINE}): {(defineEnabled ? "ENABLED" : "DISABLED")}",
+                installed ? MessageType.Info : MessageType.Warning);
 
-            if (!installed)
-            {
-                EditorGUILayout.HelpBox(
-                    "EasyUIConsole is not installed.",
-                    MessageType.Warning);
-            }
-            else if (_sampleImported)
-            {
-                EditorGUILayout.HelpBox(
-                    "EasyUIConsole installed successfully.\nEasyUIConsole sample imported successfully.",
-                    MessageType.Info);
-            }
-            else
-            {
-                EditorGUILayout.HelpBox(
-                    "EasyUIConsole installed successfully.\nYou can now import the sample.",
-                    MessageType.Info);
-            }
-
-            
             EditorGUILayout.BeginHorizontal();
 
-            using (new EditorGUI.DisabledScope(installed || _installRequest != null))
+            using (new EditorGUI.DisabledScope(_installRequest != null))
             {
                 if (GUILayout.Button("Install EasyUIConsole", GUILayout.Height(30)))
                     InstallEasyUIConsole();
@@ -93,41 +230,16 @@ namespace GAG.EasyTangibleTable.Editor
 
             EditorGUILayout.BeginHorizontal();
 
-            using (new EditorGUI.DisabledScope(!installed || defineEnabled))
-            {
-                if (GUILayout.Button("Enable Define"))
-                    AddDefine(EASY_UICONSOLE_DEFINE);
-            }
+            if (GUILayout.Button("Enable Define"))
+                AddDefine(EASY_UICONSOLE_DEFINE);
 
-            using (new EditorGUI.DisabledScope(!installed || !defineEnabled))
-            {
-                if (GUILayout.Button("Disable Define"))
-                    RemoveDefine(EASY_UICONSOLE_DEFINE);
-            }
+            if (GUILayout.Button("Disable Define"))
+                RemoveDefine(EASY_UICONSOLE_DEFINE);
 
             EditorGUILayout.EndHorizontal();
 
-            if (_installRequest != null && !_installRequest.IsCompleted)
-            {
+            if (_installRequest != null)
                 EditorGUILayout.HelpBox("Installing EasyUIConsole... Please wait.", MessageType.Info);
-            }
-            EditorGUILayout.Space();
-            
-            if (_consolePrefabs != null && _consolePrefabs.Length > 0)
-            {
-                _selectedPrefabIndex = EditorGUILayout.Popup(
-                    "UIConsole Prefab",
-                    _selectedPrefabIndex,
-                    _consolePrefabs);
-            }
-            
-            EditorGUILayout.Space();
-
-            using (new EditorGUI.DisabledScope(!installed))
-            {
-                if (GUILayout.Button("Add UIConsole Prefab", GUILayout.Height(30)))
-                    AddUIConsolePrefabToScene();
-            }
         }
 
         bool IsEasyUIConsoleInstalled()
@@ -145,29 +257,23 @@ namespace GAG.EasyTangibleTable.Editor
 
         void InstallProgress()
         {
-            if (_installRequest == null)
-                return;
-
-            if (!_installRequest.IsCompleted)
+            if (_installRequest == null || !_installRequest.IsCompleted)
                 return;
 
             EditorApplication.update -= InstallProgress;
 
             if (_installRequest.Status == StatusCode.Success)
             {
-                Debug.Log("[EasyTT] EasyUIConsole installed.");
-
+                Debug.Log("[EasyTangibleTable] EasyUIConsole installed.");
                 AddDefine(EASY_UICONSOLE_DEFINE);
-
-                _installRequest = null;
-
                 Repaint();
             }
             else
             {
-                Debug.LogError("[EasyTT] Install failed: " + _installRequest.Error.message);
-                _installRequest = null;
+                Debug.LogError("[EasyTangibleTable] Install failed: " + _installRequest.Error.message);
             }
+
+            _installRequest = null;
         }
 
         void ImportEasyUIConsoleSample()
@@ -178,7 +284,7 @@ namespace GAG.EasyTangibleTable.Editor
 
             if (pkg == null)
             {
-                Debug.LogWarning("[EasyTT] EasyUIConsole not installed.");
+                Debug.LogWarning("[EasyTangibleTable] EasyUIConsole not installed.");
                 return;
             }
 
@@ -186,71 +292,16 @@ namespace GAG.EasyTangibleTable.Editor
 
             if (samples == null || samples.Count == 0)
             {
-                Debug.LogWarning("[EasyTT] No samples found.");
+                Debug.LogWarning("[EasyTangibleTable] No samples found.");
                 return;
             }
 
             samples[0].Import(Sample.ImportOptions.OverridePreviousImports);
-
-            _sampleImported = true;
-            Repaint();
         }
 
-        void AddUIConsolePrefabToScene()
-        {
-            var guids = AssetDatabase.FindAssets("t:Prefab EasyUIConsole");
-
-            if (guids.Length == 0)
-            {
-                Debug.LogWarning("[EasyTT] No EasyUIConsole prefabs found.");
-                return;
-            }
-
-            var path = AssetDatabase.GUIDToAssetPath(guids[_selectedPrefabIndex]);
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-
-            var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-
-            Undo.RegisterCreatedObjectUndo(instance, "Add EasyUIConsole");
-
-            Selection.activeGameObject = instance;
-            
-            // var prefab = AssetDatabase
-            //     .FindAssets("t:Prefab EasyUIConsole")
-            //     .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-            //     .Select(path => AssetDatabase.LoadAssetAtPath<GameObject>(path))
-            //     .FirstOrDefault();
-            //
-            // if (prefab == null)
-            // {
-            //     Debug.LogWarning("[EasyTT] EasyUIConsole prefab not found.");
-            //     return;
-            // }
-            //
-            // var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-            //
-            // if (instance != null)
-            // {
-            //     Undo.RegisterCreatedObjectUndo(instance, "Add EasyUIConsole");
-            //     Selection.activeGameObject = instance;
-            //
-            //     Debug.Log("[EasyTT] EasyUIConsole prefab added to scene.");
-            // }
-        }
-        
-        void LoadConsolePrefabs()
-        {
-            var guids = AssetDatabase.FindAssets("t:Prefab EasyUIConsole");
-
-            _consolePrefabs = guids
-                .Select(g => AssetDatabase.GUIDToAssetPath(g))
-                .Select(p => System.IO.Path.GetFileNameWithoutExtension(p))
-                .ToArray();
-        }
-        
-        // ------------------------------------------------------
+        // ----------------------------------------------------
         // DEFINE HELPERS
-        // ------------------------------------------------------
+        // ----------------------------------------------------
 
         bool HasDefine(string symbol)
         {

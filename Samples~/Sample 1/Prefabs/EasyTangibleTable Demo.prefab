@@ -1186,8 +1186,6 @@ MonoBehaviour:
   - tagID: 201
     prefab: {fileID: 0}
     existingTag: {fileID: 8394035452905372591}
-  _tagTargetMark: {fileID: 0}
-  _tagMarkAccessible: 1
 --- !u!1 &1776000429517593257
 GameObject:
   m_ObjectHideFlags: 0
@@ -5757,7 +5755,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4211644844483906508, guid: 49caabcf032cd4344bafaf902f8b04b3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4628631025237468166, guid: 49caabcf032cd4344bafaf902f8b04b3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5937,7 +5935,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8408818654398875908, guid: 49caabcf032cd4344bafaf902f8b04b3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -870
+      value: -950
       objectReference: {fileID: 0}
     - target: {fileID: 8579875335051586041, guid: 49caabcf032cd4344bafaf902f8b04b3, type: 3}
       propertyPath: m_Name
