@@ -1,39 +1,44 @@
-using GAG.EasyTangibleTable;
 using UnityEngine;
 
 namespace GAG.EasyTangibleTable
 {
     public class EasyTangibleTagControllerBase : MonoBehaviour
-    { 
+    {
         public EasyTangibleTagModel TagData { get; private set; }
 
         [Header("References")]
-        [SerializeField] protected RectTransform _uiTransform;
+        [SerializeField] protected RectTransform _tagUiTransform;
         [SerializeField] protected RectTransform _canvas;
 
         [Header("Settings")]
         [SerializeField] protected bool _isActiveThisTag = true;
-        [SerializeField] protected bool _isMoveable = true;   // 👈 control this per tag prefab
-        [SerializeField] protected bool _isRotatable = true; // 👈 control this per tag prefab
+        [SerializeField] protected bool _isMoveable = true;
+        [SerializeField] protected bool _isRotatable = true;
         [SerializeField] protected bool _isTargetRequired = false;
-        //[SerializeField] protected bool _isTargetReachRequired = false;
+
+        [SerializeField] bool _tagMarkAccessible = true;
         [SerializeField] protected GameObject _tagTargetMark;
         [SerializeField, Range(0f, 50f)] float _targetAlignmentThreshold = 10f;
-        //[SerializeField] RectTransform _fixedTarget;
-        [Header("Offsets & Scale")]
-        protected float _xOffset = 0f;
-        protected float _yOffset = 0f;
-        protected float _zOffset = 0f;
-        protected float _xScale = 1f;
-        protected float _yScale = 1f;
 
-        private void OnDisable()
+        RectTransform _canvasRect;
+        bool _isInitialized;
+        bool _isAligned;
+
+        protected float _xOffset;
+        protected float _yOffset;
+
+        void OnDisable()
         {
-            _tagTargetMark.gameObject.SetActive(true);
+            if (_tagMarkAccessible && _tagTargetMark != null)
+                _tagTargetMark.SetActive(true);
         }
+
         public virtual void Initialize(EasyTangibleTagModel model)
         {
             TagData = model;
+            _canvasRect = _canvas;
+            _isInitialized = true;
+
             UpdateVisual();
         }
 
@@ -45,102 +50,72 @@ namespace GAG.EasyTangibleTable
 
         protected virtual void UpdateVisual()
         {
-            if (_uiTransform == null) return;
-
-            if(_isActiveThisTag)
-            {
-                _uiTransform.gameObject.SetActive(true);
-            }
-            else
-            {
-                _uiTransform.gameObject.SetActive(false);
+            if (!_isInitialized || _tagUiTransform == null)
                 return;
-            }
-            //if(!_isTargetReachRequired)
-            //{
-            //_uiTransform.gameObject.SetActive(true);
-            //}
-            //else
-            //{
+
+            _tagUiTransform.gameObject.SetActive(_isActiveThisTag);
+
+            if (!_isActiveThisTag)
+                return;
+
             if (_isMoveable)
-                {
-                    HandlePosition();
+                HandlePosition();
 
-                    if (_isTargetRequired)
-                    {
-                    //_isTargetRequired = false;
-                    // _uiTransform.gameObject.SetActive(false);
-                    //_isActiveThisTag = false;
-                    HandleFixedTarget();
-                    }
-                    else
-                    {
-                        _tagTargetMark.gameObject.SetActive(false);
-                    }
-
-
-                }
-
-            //}
-
-
-
-            // Rotation is common (optional override)
             if (_isRotatable)
-            {
                 HandleRotation();
-            }
+
+            if (_isTargetRequired)
+                HandleTargetLogic();
         }
 
         protected virtual void HandlePosition()
         {
-            if (_canvas == null) return;
-
-            RectTransform canvasRect = _canvas.GetComponent<RectTransform>();
-
             _xOffset = PlayerPrefs.GetFloat("XOffset", _xOffset);
             _yOffset = PlayerPrefs.GetFloat("YOffset", _yOffset);
 
-            float expectedX = TagData.XPos * canvasRect.rect.width - canvasRect.rect.width * 0.5f;
-            float expectedY = TagData.YPos * canvasRect.rect.height - canvasRect.rect.height * 0.5f;
+            float x = TagData.XPos * _canvasRect.rect.width - _canvasRect.rect.width * 0.5f;
+            float y = TagData.YPos * _canvasRect.rect.height - _canvasRect.rect.height * 0.5f;
 
-            Vector2 expectedPos = new Vector2(expectedX + _xOffset, expectedY + _yOffset);
-            _uiTransform.anchoredPosition = expectedPos;
+            _tagUiTransform.anchoredPosition = new Vector2(x + _xOffset, y + _yOffset);
         }
 
         protected virtual void HandleRotation()
         {
-            // You can override this in derived classes if needed
-            _uiTransform.localRotation = Quaternion.Euler(0, 0, -TagData.Degree);
+            _tagUiTransform.localRotation = Quaternion.Euler(0, 0, -TagData.Degree);
         }
 
-        protected virtual void HandleFixedTarget()
+        protected virtual void HandleTargetLogic()
         {
-            if (_tagTargetMark == null || _uiTransform == null) return;
+            if (!_tagMarkAccessible || _tagTargetMark == null)
+                return;
 
-            // Measure distance between UI and target
-            float distance = Vector3.Distance(_uiTransform.position, _tagTargetMark.transform.position);
+            float distance = Vector3.Distance(
+                _tagUiTransform.position,
+                _tagTargetMark.transform.position
+            );
 
-            // 👇 Compare using threshold (instead of exact equality)
-            //bool isAligned = distance <= _alignmentThreshold;
+            bool alignedNow = distance <= _targetAlignmentThreshold;
 
-            if(distance <= _targetAlignmentThreshold)
+            if (alignedNow && !_isAligned)
             {
-                _tagTargetMark.gameObject.SetActive(false);
-                //_uiTransform.gameObject.SetActive(true);
-                _isActiveThisTag = true;
-            }
+                _isAligned = true;
+                _tagTargetMark.SetActive(false);
 
-            //if (_tagTargetMark == null) return;
-            //// Logic to align with fixed target
-            //if(_uiTransform.position == _tagTargetMark.transform.position) 
-            //{
-            //    _tagTargetMark.gameObject.SetActive(false);
-            //}
-            //else
-            //{
-            //    _tagTargetMark.gameObject.SetActive(true);
-            //}
+                EasyTangibleTagEvents.RaiseTagAligned(TagData.FiducialID);
+                OnTargetReached();
+            }
+            else if (!alignedNow && _isAligned)
+            {
+                _isAligned = false;
+                _tagTargetMark.SetActive(true);
+
+                EasyTangibleTagEvents.RaiseTagAlignmentLost(TagData.FiducialID);
+                OnTargetDeparted();
+            }
         }
+
+        protected virtual void OnTargetReached() { }
+
+        protected virtual void OnTargetDeparted() { }
     }
 }

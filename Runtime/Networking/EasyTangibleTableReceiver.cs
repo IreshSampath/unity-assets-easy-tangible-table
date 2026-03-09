@@ -87,10 +87,24 @@ namespace GAG.EasyTangibleTable
                 easyTangibleTag.MotionAccel = message.Values[9].FloatValue;
                 easyTangibleTag.RotationAccel = message.Values[10].FloatValue;
 
-                _activeTags.Add(easyTangibleTag.SessionID);
-
                 EasyTangibleTableLogger.Highlight($"Tag Detected: SessionID: {easyTangibleTag.SessionID}, FiducialID: {easyTangibleTag.FiducialID}, Pos = ({easyTangibleTag.XPos.ToString("F2")}, {easyTangibleTag.YPos.ToString("F2")}, Angle: {easyTangibleTag.Degree.ToString("F2")})");
-                EasyTangibleTagEvents.RaiseTagPlaced(easyTangibleTag);
+                
+                bool isNew = _activeTags.Add(easyTangibleTag.SessionID);
+
+                if (isNew)
+                    EasyTangibleTagEvents.RaiseTagPlaced(easyTangibleTag);
+                else
+                    EasyTangibleTagEvents.RaiseTagUpdated(easyTangibleTag);
+
+                EasyTangibleTagEvents.RaiseTagMoved(
+                    easyTangibleTag.FiducialID,
+                    new Vector2(easyTangibleTag.XPos, easyTangibleTag.YPos)
+                );
+
+                EasyTangibleTagEvents.RaiseTagRotated(
+                    easyTangibleTag.FiducialID,
+                    easyTangibleTag.Degree
+                );
             }
 
             else if (commandType == "alive")
@@ -103,7 +117,7 @@ namespace GAG.EasyTangibleTable
                     activeSessionIDs.Add(message.Values[i].IntValue);
                 }
 
-                EasyTangibleTagEvents.RaiseTagAlived(activeSessionIDs);
+                EasyTangibleTagEvents.RaiseActiveTagsUpdated(activeSessionIDs);
 
                 DetectRemovedTags(activeSessionIDs);
             }
