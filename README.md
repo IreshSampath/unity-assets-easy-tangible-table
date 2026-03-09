@@ -61,8 +61,11 @@ Follow the installation steps in order.
 5. Click **Install**
 
 ---
+
 ## 🧰 Import the Samples
+
 ![EasyTangibleTable-Samples](Docs/EasyTangibleTable-Samples.png)
+
 After installing the package:
 - 1️⃣ Open Package Manager
 - 2️⃣ Select EasyTangibleTable
@@ -70,6 +73,7 @@ After installing the package:
 - 4️⃣ Click Import
   
 ---
+
 ## 🎮 Available Sample Prefabs
 
 ![EasyTangibleTable-Prefabs](Docs/EasyTangibleTable-Prefabs.png)
@@ -80,17 +84,11 @@ Inside the imported sample, you will find two prefabs.
 - Receiving TUIO tag and touch data
 - Displaying tag details
 - Debug logging
-  
+
+⚠️ EasyUIConsole is required for debug output.
+
 ### EasyTangibleTable Demo
 This prefab demonstrates example tag behaviours and abobe bsic functaionalties.
-
-⚠️ This sample requires **EasyUIConsole** to display the logs.
-Without **EasyUIConsole** the system still works, but debug messages will not appear.
-
-### Import EasyUIConsole
-![EasyTangibleTable-Tool](Docs/EasyTangibleTable-Tool.png)
-
-![EasyTangibleTable-ControlPanels](Docs/EasyTangibleTable-ControlPanels.png)
 
 Example tag controllers included:
 ```csharp
@@ -107,11 +105,24 @@ These show how to create custom tag interactions, such as:
 - color selection
 - alignment triggers
 
-Like the previous sample, EasyUIConsole is required for debug output.
+⚠️ EasyUIConsole is required for debug output.
 
 ---
 
-##🧠 Basic Usage
+## 3️⃣ Import EasyUIConsole
+
+⚠️ This sample requires **EasyUIConsole** to display the logs.
+
+Without **EasyUIConsole** the system still works, but debug messages will not appear.
+
+![EasyTangibleTable-Tool](Docs/EasyTangibleTable-Tool.png)
+
+![EasyTangibleTable-ControlPanels](Docs/EasyTangibleTable-ControlPanels.png)
+
+---
+
+## 🧠 Basic Usage
+
 EasyTangibleTable provides a simple API via EasyTT.
 
 Example
@@ -142,6 +153,7 @@ void OnTagRemoved(int tagID)
 ```
 
 #### 🎮 Create Custom Tag Behaviours
+
 Each tangible tag can have its own controller script.
 
 ```csharp
@@ -169,7 +181,9 @@ public class MyCustomTagController : EasyTangibleTagControllerBase
 Attach this script to your tag prefab.
 
 ## 📡 Available Events
+
 EasyTangibleTable exposes multiple events:
+
 ```csharp
 EasyTT.TagPlaced
 EasyTT.TagUpdated
