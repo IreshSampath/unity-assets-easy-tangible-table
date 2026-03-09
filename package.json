@@ -5,13 +5,16 @@
   "description": "EasyTangibleTable is a lightweight Unity asset for building interactive tangible table applications using TUIO. Easily detect, track, and manage fiducial markers (tags) to create interactive surfaces, installations, and multi-object experiences.\n\nNote: Requires a TUIO source (such as reacTIVision, Displax, or other tracking systems) to send tag data over OSC.",
   "unity": "2022.3",
   "unityRelease": "0f1",
+  "hideInEditor": false,
+  
   "documentationUrl": "https://github.com/IreshSampath/unity-assets-easy-tangible-table/blob/main/README.md",
   "changelogUrl": "https://github.com/IreshSampath/unity-assets-easy-tangible-table/blob/main/CHANGELOG.md",
   "licensesUrl": "https://github.com/IreshSampath/unity-assets-easy-tangible-table/blob/main/LICENSE",
+  
   "dependencies": {
-    "com.unity.textmeshpro": "5.0.0",
-	"com.extosc.unity": "https://github.com/IreshSampath/extOSC.git#upm"
+    "com.unity.textmeshpro": "5.0.0"
   },
+  
   "samples": [
     {
       "displayName": "EasyTangibleTable Sample",
@@ -19,6 +22,7 @@
       "path": "Samples~/Sample 1"
     }
   ],
+  
   "keywords": [
     "tangible table",
     "tuio",
@@ -28,8 +32,10 @@
     "interactive installation",
     "multi object tracking",
     "osc",
-    "touch table"
+    "touch table",
+	"unity package"
   ],
+  
   "author": {
     "name": "Iresh Sampath",
     "email": "ireshsampath@gmail.com",
