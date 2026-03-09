@@ -1,6 +1,6 @@
 # 🧩 EasyTangibleTable for Unity
 
-![EasyUR3-Preview](Docs/EasyUR3-Preview.png)
+![EasyTangibleTable-Preview](Docs/EasyTangibleTable-Preview.png)
 
 ![Unity](https://img.shields.io/badge/Unity-2022.3%2B-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-PC%20%7C%20Editor-lightgrey.svg)
@@ -10,12 +10,15 @@
 
 ## 🚀 Overview
 
-**EasyTangibleTable** is a lightweight Unity package for building tangible table applications using TUIO tracking systems.
+**EasyTangibleTable** is a lightweight Unity package for building **tangible table applications using the TUIO protocol.**
 
-It allows Unity apps to detect, track, and interact with fiducial markers (tags) on interactive surfaces.
+It allows Unity apps to **detect, track, and interact with fiducial markers (tags)** on interactive surfaces such as touch tables and projection systems.
 
-The package provides a clean event-driven API and a component-based tag controller system, making it easy to create interactive installations, museum exhibits, and multi-object experiences.
-
+The package provides:
+- a clean event-driven API
+- a component-based tag controller system
+- an extensible architecture for interactive installations and R&D projects
+  
 ### ⚙️ Features
 
 - ✅ Detect tangible tags using TUIO protocol
@@ -38,8 +41,18 @@ Perfect for:
 ---
 
 ## 📦 Installation
+EasyTangibleTable requires extOSC to receive TUIO messages.
 
-### Install via Unity Package Manager (Git URL)
+Follow the installation steps in order.
+
+### 1️⃣ Install extOSC (Required) via Unity Package Manager (Git URL)
+1. Open **Unity → Window → Package Manager**
+2. Click **+** → **Add package from Git URL**
+3. Paste the following:
+[https://github.com/IreshSampath/extOSC.git#upm](https://github.com/IreshSampath/extOSC.git#upm)
+5. Click **Install**
+   
+### 2️⃣ Install EasyTangibleTable via Unity Package Manager (Git URL)
 
 1. Open **Unity → Window → Package Manager**
 2. Click **+** → **Add package from Git URL**
@@ -48,31 +61,57 @@ Perfect for:
 5. Click **Install**
 
 ---
+## 🧰 Import the Samples
+![EasyTangibleTable-Samples](Docs/EasyTangibleTable-Samples.png)
+After installing the package:
+- 1️⃣ Open Package Manager
+- 2️⃣ Select EasyTangibleTable
+- 3️⃣ Go to the Samples tab
+- 4️⃣ Click Import
+  
+---
+## 🎮 Available Sample Prefabs
 
-## 🧰 Quick Start
+![EasyTangibleTable-Prefabs](Docs/EasyTangibleTable-Prefabs.png)
 
-### ✅ Step 1 — Setup the Tangible Table Receiver
+Inside the imported sample, you will find two prefabs.
 
-1. Go to **Package Manager → EasyTangibleTable → Samples**
-3. Click **Import  → EasyTangibleTable Sample**
-4. Drag the **EasyTangibleTable Demo** prefab into your scene
-   
-![EasyUR3-Prefab](Docs/EasyUR3-Prefab.png)
+### EasyTangibleTable
+- Receiving TUIO tag and touch data
+- Displaying tag details
+- Debug logging
+  
+### EasyTangibleTable Demo
+This prefab demonstrates example tag behaviours and abobe bsic functaionalties.
 
-### ✅ Step 2 — Setup Tag Manager
-Add EasyTangibleTagManager to your scene.
+⚠️ This sample requires **EasyUIConsole** to display the logs.
+Without **EasyUIConsole** the system still works, but debug messages will not appear.
 
-Assign tag prefabs or existing tag objects in the inspector.
+### Import EasyUIConsole
+![EasyTangibleTable-Tool](Docs/EasyTangibleTable-Tool.png)
 
-The manager automatically:
+![EasyTangibleTable-ControlPanels](Docs/EasyTangibleTable-ControlPanels.png)
 
-creates tag controllers
+Example tag controllers included:
+```csharp
+TagAController
+TagBController
+TagCController
+TagDController
+```
 
-updates tag positions
+These show how to create custom tag interactions, such as:
 
-activates/deactivates tags
+- rotation-based UI states
+- button interactions
+- color selection
+- alignment triggers
 
-### ✅ Step 3 — Listen to Tag Events
+Like the previous sample, EasyUIConsole is required for debug output.
+
+---
+
+##🧠 Basic Usage
 EasyTangibleTable provides a simple API via EasyTT.
 
 Example
@@ -129,7 +168,7 @@ public class MyCustomTagController : EasyTangibleTagControllerBase
 ```
 Attach this script to your tag prefab.
 
-#### 📡 Available Events
+## 📡 Available Events
 EasyTangibleTable exposes multiple events:
 ```csharp
 EasyTT.TagPlaced
@@ -141,28 +180,25 @@ EasyTT.TagAligned
 EasyTT.TagAlignmentLost
 EasyTT.TagRemoved
 ```
-These allow you to build complex interactions.
-Example uses:
-- trigger UI actions
-- control animations
-- synchronize multiple tags
-- start/stop experiences
+
+These events allow you to build complex interactions such as:
+- UI triggers
+- object manipulation
+- multi-tag interactions
+- experience control
 
 ---
 
-## 🎨 Sample Scene
-The package includes a sample scene demonstrating:
-- multiple tag controllers
-- UI interaction
-- rotation-based states
-- alignment detection
-Example tag controllers included:
-```csharp
-TagAController
-TagBController
-TagCController
-TagDController
-```
+## 🎨 Example Use Cases
+
+EasyTangibleTable can be used for:
+
+- tangible games
+- interactive tables
+- educational installations
+- museum exhibits
+- research experiments
+  
 ---
 
 ## 📜 License
@@ -173,6 +209,7 @@ IT License — Free for commercial and personal use.
 ## 🙏 Thank You
 Thanks for using EasyTangibleTable!
 - Feel free to contribute
+  
 ⭐ Star the repo
 🐞 Report issues
 🚀 Suggest improvements
@@ -180,4 +217,6 @@ Thanks for using EasyTangibleTable!
 ---
 
 ## 👤 Author
-Iresh Sampath 🔗 [LinkedIn Profile](https://www.linkedin.com/in/ireshsampath/)
+Iresh Sampath 
+
+🔗 [LinkedIn Profile](https://www.linkedin.com/in/ireshsampath/)
